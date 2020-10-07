@@ -13,7 +13,7 @@ public class Item {
     String description;
 
 
-public Item(JSONObject jo) throws JSONException{
+/*public Item(JSONObject jo) throws JSONException{
     setId(jo.getLong("id"));
     setTitle(jo.getString("title"));
 
@@ -24,7 +24,7 @@ public Item(JSONObject jo) throws JSONException{
     if(jo.has("description")){
         setDescription(jo.getString("description"));
     }
-}
+} */
 
 public long getId() {return id;}
 

@@ -15,28 +15,32 @@ import android.widget.TextView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-public class ListingActivity extends AppCompatActivity {
-    private TextView createnewuser;
+public class ListingActivity extends OptionsMenuActivity {
+
+    private FloatingActionButton mCreateNewListingView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_listing);
 
-        createnewuser = (TextView) findViewById(R.id.createNewUser);
-        createnewuser.setOnClickListener(new View.OnClickListener() {
+        mCreateNewListingView = findViewById(R.id.fab);
+
+        mCreateNewListingView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openCreateUserActivity();
+                openCreateListingActivity();
             }
         });
 
 
 
+
     }
 
-    public void openCreateUserActivity(){
-        Intent intent = new Intent(this, CreateUserActivity.class);
+    public void openCreateListingActivity(){
+        Intent intent = new Intent(this, CreateListingActivity.class);
         startActivity(intent);
     }
 }

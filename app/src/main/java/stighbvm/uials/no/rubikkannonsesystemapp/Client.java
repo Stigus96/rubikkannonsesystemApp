@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -119,8 +120,36 @@ public class Client {
 
 
 
-    public void sendUrlencoded(){
+    public Item createItem(String title, BigDecimal price, String description) throws IOException {
+        Item result;
+        String urlParameters = "&title=" + title + "&description=" + description + "&price=" + price;
 
+        byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
+        int postDataLength = postData.length;
+        HttpURLConnection con = null;
+
+        URL url = new URL(CREATE_USER_URL);
+        con = (HttpURLConnection) url.openConnection();
+
+        con.setDoOutput(true);
+        con.setInstanceFollowRedirects(false);
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        con.setRequestProperty("charset", "utf-8");
+        con.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+        con.setUseCaches(false);
+
+        try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
+            wr.write(postData);
+        }
+        // Read JSON result
+        try (JsonReader jr = new JsonReader(new InputStreamReader(new BufferedInputStream(con.getInputStream())))) {
+            result = loadItem(jr);
+            con.getInputStream().close(); // Why?
+        } finally {
+            if (con != null) con.disconnect();
+        }
+        return result;
 
     }
 
@@ -146,6 +175,37 @@ public class Client {
         jr.endObject();
 
         return result;
+    }
+
+    private Item loadItem(JsonReader jr) throws IOException {
+        Item result = new Item();
+
+
+        jr.beginObject();
+        while (jr.hasNext()) {
+            switch (jr.nextName()) {
+                case "itemid":
+                    result.setId(jr.nextLong());
+                    break;
+                case "title":
+                    result.setTitle(jr.nextString());
+                    break;
+                case "description":
+                    result.setDescription(jr.nextString());
+                    break;
+                case "price":
+                    String stringprice = jr.nextString();
+                    BigDecimal price = new BigDecimal(stringprice);
+                    result.setPrice(price);
+                    break;
+                default:
+                    jr.skipValue();
+            }
+        }
+        jr.endObject();
+
+        return result;
+
     }
 
 }

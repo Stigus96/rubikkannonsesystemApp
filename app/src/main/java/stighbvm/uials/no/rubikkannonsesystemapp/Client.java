@@ -128,7 +128,7 @@ public class Client {
         int postDataLength = postData.length;
         HttpURLConnection con = null;
 
-        URL url = new URL(CREATE_USER_URL);
+        URL url = new URL(ADD_ITEM_URL);
         con = (HttpURLConnection) url.openConnection();
 
         con.setDoOutput(true);

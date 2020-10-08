@@ -18,6 +18,7 @@ import com.google.android.material.snackbar.Snackbar;
 public class ListingActivity extends OptionsMenuActivity {
 
     private FloatingActionButton mCreateNewListingView;
+    private Button mLoginbutton;
 
 
     @Override
@@ -26,6 +27,7 @@ public class ListingActivity extends OptionsMenuActivity {
         setContentView(R.layout.activity_listing);
 
         mCreateNewListingView = findViewById(R.id.fab);
+        mLoginbutton = findViewById(R.id.login_button);
 
         mCreateNewListingView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -34,9 +36,21 @@ public class ListingActivity extends OptionsMenuActivity {
             }
         });
 
+        mLoginbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openLoginActivity();
+            }
+        });
 
 
 
+
+    }
+
+    public void openLoginActivity(){
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
     }
 
     public void openCreateListingActivity(){

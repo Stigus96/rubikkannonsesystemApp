@@ -12,6 +12,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Client {
     private static Client SINGLETON;
@@ -29,10 +31,12 @@ public class Client {
     public static final String GET_ITEMS_URL = APIURL + "REST/items";
     public static final String CREATE_USER_URL = APIURL + "auth/create";
 
-    public static SimpleDateFormat DTAE_FORMAT = new SimpleDateFormat(DATE_FORMAT_PATTERN);
+    public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_PATTERN);
 
     /** JWT token returned from login */
     String token;
+
+
 
     public static synchronized Client getSingleton() {
         if(SINGLETON == null) {
@@ -42,8 +46,17 @@ public class Client {
         return SINGLETON;
     }
 
-    protected User user;
+    public interface OnItemsLoaded{
+        void onLoaded(List<Item> items);
+    }
 
+    protected User user;
+    protected OnItemsLoaded onItemsLoaded = items ->{};
+    protected List<Item> items = new ArrayList<>();
+
+    public void setItemsLoadedListener(OnItemsLoaded listener){
+        this.onItemsLoaded = listener;
+    }
 
 
     public HttpURLConnection getSecureConnection(String url) throws IOException {
@@ -124,12 +137,12 @@ public class Client {
         Item result;
         String urlParameters = "&title=" + title + "&description=" + description + "&price=" + price;
 
+
         byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
         int postDataLength = postData.length;
         HttpURLConnection con = null;
 
-        URL url = new URL(ADD_ITEM_URL);
-        con = (HttpURLConnection) url.openConnection();
+        con = getSecureConnection(ADD_ITEM_URL);
 
         con.setDoOutput(true);
         con.setInstanceFollowRedirects(false);
@@ -206,6 +219,45 @@ public class Client {
 
         return result;
 
+    }
+
+    public List<Item> loadItems() throws IOException {
+        List<Item> result = new ArrayList<>();
+
+        HttpURLConnection c = null;
+        try{
+            URL url = new URL(GET_ITEMS_URL);
+            c = (HttpURLConnection) url.openConnection();
+            c.setUseCaches(true);
+            c.setRequestMethod("GET");
+
+            if(c.getResponseCode() == HttpURLConnection.HTTP_OK){
+                BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream(), StandardCharsets.UTF_8));
+                JsonReader jr = new JsonReader(br);
+                result = loadItems(jr);
+                jr.close();
+                c.getInputStream().close();
+            }
+
+        } finally {
+            if(c != null) c.disconnect();
+        }
+
+        items = new ArrayList<>(result);
+        onItemsLoaded.onLoaded(items);
+
+        return result;
+    }
+
+    private List<Item> loadItems(JsonReader jr) throws IOException {
+        List<Item> result = new ArrayList<>();
+
+        jr.beginArray();
+        while(jr.hasNext()){
+            result.add(loadItem(jr));
+        }
+        jr.endArray();
+        return result;
     }
 
 }

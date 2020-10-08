@@ -70,7 +70,7 @@ public class LoginActivity extends AppCompatActivity {
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mUseridView.getText().toString();
+        String userid = mUseridView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
@@ -84,11 +84,11 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
+        if (TextUtils.isEmpty(userid)) {
             mUseridView.setError(getString(R.string.error_field_required));
             focusView = mUseridView;
             cancel = true;
-        } else if (!isUseridValid(email)) {
+        } else if (!isUseridValid(userid)) {
             mUseridView.setError(getString(R.string.error_invalid_userid));
             focusView = mUseridView;
             cancel = true;
@@ -102,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             //howProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(userid, password);
             mAuthTask.execute((Void) null);
         }
     }
@@ -129,18 +129,18 @@ public class LoginActivity extends AppCompatActivity {
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mEmail;
+        private final String mUserid;
         private final String mPassword;
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
+        UserLoginTask(String userid, String password) {
+            mUserid = userid;
             mPassword = password;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                return Client.getSingleton().login(mEmail,mPassword) != null;
+                return Client.getSingleton().login(mUserid,mPassword) != null;
             } catch (IOException e) {
                 System.out.println("Failed to login");
                 e.printStackTrace();

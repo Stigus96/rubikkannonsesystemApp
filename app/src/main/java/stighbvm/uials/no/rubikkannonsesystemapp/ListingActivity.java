@@ -49,10 +49,11 @@ public class ListingActivity extends OptionsMenuActivity {
             }
         });
 
+        adapter.setOnClickListener(position -> System.out.println("Open item #" + position));
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
-
+        //Client.getSingleton().loadItems(adapter::setItems,System.out::println);
         Client.getSingleton().setItemsLoadedListener(this::onItemsLoaded);
 
     }
